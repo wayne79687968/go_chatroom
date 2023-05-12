@@ -18,15 +18,18 @@ conn.onmessage = function(e) {
     var data = JSON.parse(e.data);
     console.log(data);
     var msg = document.createElement('div');
-    if (data.recipient) {
-        msg.innerText = " ( To" + data.recipient + " ) " + data.sender + ': ' + data.body;
+    if ("to" == data.Action) {
+        msg.innerText = " ( To " + data.recipient + " ) " + data.sender + ': ' + data.body;
         msg.className = 'message to-command';
-    } else if (data.sender) {
-        msg.innerText = data.sender + ': ' + data.body;
-        msg.className = 'message';
-    } else {
+    } else if ("chname" == data.Action) {
         msg.innerText = data.body;
         msg.className = 'message chname-command';
+        if ("" != data.Newname) {
+            document.getElementById('name').value = currentName;
+        }
+    } else {
+        msg.innerText = data.sender + ': ' + data.body;
+        msg.className = 'message';
     }
     chatbox.appendChild(msg);
     chatbox.scrollTop = chatbox.scrollHeight;
@@ -39,7 +42,6 @@ messageForm.addEventListener('submit', function(e) {
 
     if (input.startsWith('/chname ')) {
         currentName = input.split(' ')[1];
-        document.getElementById('name').value = currentName;
         var data = {
             name: currentName,
             body: document.getElementById('message').value

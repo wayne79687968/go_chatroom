@@ -40,6 +40,8 @@ type Message struct {
 	Sender string `json:"sender"`
 	Content string `json:"body"`
 	Recipient string `json:"recipient"`
+	Newname string `json:"newname"`
+	Action string `json:"action"`
 }
 
 func (c *Client) readPump() {
@@ -83,15 +85,17 @@ func (c *Client) readPump() {
 				} else {
 					msg.Content = c.name + " change name to " + parts[1]
 					c.name = parts[1]
+					msg.Newname = c.name
 				}
 			}
-			msg.Sender = ""
+			msg.Action = "chname"
 		} else if strings.HasPrefix(msg.Content, "/to") {
 			parts := strings.SplitN(msg.Content, " ", 3)
 			if len(parts) == 3 {
 				msg.Recipient = parts[1]
 				msg.Content = parts[2]
 			}
+			msg.Action = "to"
 		}
 
 		message, err = json.Marshal(msg)

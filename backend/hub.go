@@ -38,7 +38,7 @@ func (h *Hub) run() {
 				log.Printf("Error unmarshaling message: %v", err)
 				continue
 			}
-			if "" == msg.Sender {
+			if "chname" == msg.Action {
 				for client := range h.clients {
 					if client.name == msg.Sender {
 						select {
@@ -49,16 +49,7 @@ func (h *Hub) run() {
 						}
 					}
 				}
-			} else if "" == msg.Recipient {
-				for client := range h.clients {
-					select {
-					case client.send <- message:
-					default:
-						close(client.send)
-						delete(h.clients, client)
-					}
-				}
-			} else {
+			} else if "to" == msg.Action {
 				for client := range h.clients {
 					if client.name == msg.Recipient || client.name == msg.Sender {
 						select {
@@ -67,6 +58,15 @@ func (h *Hub) run() {
 							close(client.send)
 							delete(h.clients, client)
 						}
+					}
+				}
+			} else {
+				for client := range h.clients {
+					select {
+					case client.send <- message:
+					default:
+						close(client.send)
+						delete(h.clients, client)
 					}
 				}
 			}
