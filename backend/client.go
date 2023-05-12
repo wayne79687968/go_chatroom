@@ -39,6 +39,7 @@ type Client struct {
 type Message struct {
 	Sender string `json:"sender"`
 	Content string `json:"body"`
+	Recipient string `json:"recipient"`
 }
 
 func (c *Client) readPump() {
@@ -71,6 +72,27 @@ func (c *Client) readPump() {
 		}
 
 		msg.Sender = c.name
+
+		if strings.HasPrefix(msg.Content, "/chname") {
+			parts := strings.SplitN(msg.Content, " ", 2)
+			if len(parts) == 2 {
+				if c.name == parts[1] {
+					msg.Content = "You cannot change name to original name."
+				} else if parts[1] == "anonymous" {
+					msg.Content = "You cannot change name to 'anonymous'."
+				} else {
+					msg.Content = c.name + " change name to " + parts[1]
+					c.name = parts[1]
+				}
+			}
+			msg.Sender = ""
+		} else if strings.HasPrefix(msg.Content, "/to") {
+			parts := strings.SplitN(msg.Content, " ", 3)
+			if len(parts) == 3 {
+				msg.Recipient = parts[1]
+				msg.Content = parts[2]
+			}
+		}
 
 		message, err = json.Marshal(msg)
 		if err != nil {

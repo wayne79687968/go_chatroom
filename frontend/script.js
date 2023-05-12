@@ -15,10 +15,34 @@ messageForm.addEventListener('submit', function(e) {
     e.preventDefault();
     var input = document.getElementById('message').value;
     var currentName = document.getElementById('name').value;
-    var data = {
-        name: currentName,
-        body: input
-    };
-    conn.send(JSON.stringify(data));
-    document.getElementById('message').value = '';
+
+    if (input.startsWith('/chname ')) {
+        currentName = input.split(' ')[1];
+        document.getElementById('name').value = currentName;
+        var data = {
+            name: currentName,
+            body: document.getElementById('message').value
+        }
+        conn.send(JSON.stringify(data));
+        document.getElementById('message').value = '';
+    } else if (input.startsWith('/to ')) {
+        var parts = input.split(' ');
+        var recipient = parts[1];
+        var message = parts.slice(2).join(' ');
+
+        var data = {
+            name: currentName,
+            body: message,
+            recipient: recipient
+        };
+        conn.send(JSON.stringify(data));
+        document.getElementById('message').value = '';
+    } else {
+        var data = {
+            name: currentName,
+            body: input
+        };
+        conn.send(JSON.stringify(data));
+        document.getElementById('message').value = '';
+    }
 });
