@@ -7,9 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8080:8080'
-    depends_on:
-      - db
-      - redis
 
   frontend:
     image: nginx:1.17.1-alpine
@@ -17,8 +14,3 @@ services:
       - ./frontend:/usr/share/nginx/html
     ports:
       - '80:80'
-
-  redis:
-    image: redis:latest
-    ports:
-      - '6379:6379'
