@@ -2,6 +2,17 @@ var conn = new WebSocket('localhost:8080');
 var chatbox = document.getElementById('chatbox');
 var messageForm = document.getElementById('messageForm');
 
+getUsername();
+
+function getUsername() {
+    fetch('/api/getUsername')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            document.getElementById('name').value = data.username;
+        });
+}
+
 conn.onmessage = function(e) {
     var data = JSON.parse(e.data);
     console.log(data);
