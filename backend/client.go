@@ -77,7 +77,7 @@ func (c *Client) readPump() {
 			parts := strings.SplitN(msg.Content, " ", 2)
 			if len(parts) == 2 {
 				if c.name == parts[1] {
-					msg.Content = "You cannot change name to original name."
+					msg.Content = "You cannot change name to the original."
 				} else if parts[1] == "anonymous" {
 					msg.Content = "You cannot change name to 'anonymous'."
 				} else {

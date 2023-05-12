@@ -6,7 +6,7 @@ var messageForm = document.getElementById('messageForm');
 getUsername();
 
 function getUsername() {
-    fetch(backend_url + '/api/getUsername')
+    fetch('http://' + backend_url + '/api/getUsername')
         .then(response => response.json())
         .then(data => {
             console.log(data)
