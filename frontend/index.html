@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>Chat Room</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-    <div id="chatbox"></div>
-    <form id="messageForm">
-        <input type="hidden" id="name" value="" />
-        <input type="text" id="message" autocomplete="off" required />
-        <button type="submit">Send</button>
-    </form>
-    <script src="script.js"></script>
-</body>
-
+    <head>
+        <title>Chat Room</title>
+        <link rel="stylesheet" type="text/css" href="styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <div id="chatbox" class="chat-container"></div>
+            <div id="messageForm">
+                <input type="hidden" id="name" value="" />
+                <input id="message" type="text" class="form-control">
+                <button id="send" class="btn btn-primary" type="submit">Send</button>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
 </html>

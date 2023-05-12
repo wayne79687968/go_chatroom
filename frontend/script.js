@@ -31,6 +31,11 @@ conn.onmessage = function(e) {
         msg.innerText = data.sender + ': ' + data.body;
         msg.className = 'message';
     }
+    if (document.getElementById('name').value == data.sender) {
+        msg.classList.add("my-message");
+    } else {
+        msg.classList.add("other-message");
+    }
     chatbox.appendChild(msg);
     chatbox.scrollTop = chatbox.scrollHeight;
 };
