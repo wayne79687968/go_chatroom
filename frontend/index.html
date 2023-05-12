@@ -3,18 +3,7 @@
 
 <head>
     <title>Chat Room</title>
-    <style>
-        #chatbox {
-            height: 500px;
-            width: 500px;
-            border: 1px solid black;
-            overflow: auto;
-        }
-        
-        .message {
-            margin: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -24,71 +13,7 @@
         <input type="text" id="message" autocomplete="off" required />
         <button type="submit">Send</button>
     </form>
-    <script>
-        var conn = new WebSocket('ws://ip172-18-0-45-che41u2e69v000fem8lg-8080.direct.labs.play-with-docker.com/ws');
-        var chatbox = document.getElementById('chatbox');
-        var messageForm = document.getElementById('messageForm');
-
-        function getUsername() {
-            fetch('/api/getUsername')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('name').value = data.username;
-                });
-        }
-
-        conn.onmessage = function(e) {
-            var data = JSON.parse(e.data);
-            console.log(data);
-            var msg = document.createElement('div');
-            if (data.recipient) {
-                msg.innerText = "(To" + data.recipient + ")" + data.sender + ': ' + data.body;
-            } else if (data.sender) {
-                msg.innerText = data.sender + ': ' + data.body;
-            } else {
-                msg.innerText = data.body;
-            }
-            msg.className = 'message';
-            chatbox.appendChild(msg);
-            chatbox.scrollTop = chatbox.scrollHeight;
-        };
-
-        messageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var input = document.getElementById('message').value;
-            var currentName = document.getElementById('name').value;
-
-            if (input.startsWith('/chname ')) {
-                currentName = input.split(' ')[1];
-                document.getElementById('name').value = currentName;
-                var data = {
-                    name: currentName,
-                    body: document.getElementById('message').value
-                }
-                conn.send(JSON.stringify(data));
-                document.getElementById('message').value = '';
-            } else if (input.startsWith('/to ')) {
-                var parts = input.split(' ');
-                var recipient = parts[1];
-                var message = parts.slice(2).join(' ');
-
-                var data = {
-                    name: currentName,
-                    body: message,
-                    recipient: recipient
-                };
-                conn.send(JSON.stringify(data));
-                document.getElementById('message').value = '';
-            } else {
-                var data = {
-                    name: currentName,
-                    body: input
-                };
-                conn.send(JSON.stringify(data));
-                document.getElementById('message').value = '';
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
