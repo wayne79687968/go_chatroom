@@ -18,13 +18,13 @@ conn.onmessage = function(e) {
     var data = JSON.parse(e.data);
     console.log(data);
     var msg = document.createElement('div');
-    if ("to" == data.Action) {
+    if ("to" == data.action) {
         msg.innerText = " ( To " + data.recipient + " ) " + data.sender + ': ' + data.body;
         msg.className = 'message to-command';
-    } else if ("chname" == data.Action) {
+    } else if ("chname" == data.action) {
         msg.innerText = data.body;
         msg.className = 'message chname-command';
-        if ("" != data.Newname) {
+        if ("" != data.newname) {
             document.getElementById('name').value = currentName;
         }
     } else {
