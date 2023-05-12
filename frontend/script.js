@@ -6,7 +6,16 @@ conn.onmessage = function(e) {
     var data = JSON.parse(e.data);
     console.log(data);
     var msg = document.createElement('div');
-    msg.innerText = data.sender + ': ' + data.body;
+    if (data.recipient) {
+        msg.innerText = " ( To" + data.recipient + " ) " + data.sender + ': ' + data.body;
+        msg.className = 'message to-command';
+    } else if (data.sender) {
+        msg.innerText = data.sender + ': ' + data.body;
+        msg.className = 'message';
+    } else {
+        msg.innerText = data.body;
+        msg.className = 'message chname-command';
+    }
     chatbox.appendChild(msg);
     chatbox.scrollTop = chatbox.scrollHeight;
 };
