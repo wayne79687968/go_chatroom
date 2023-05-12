@@ -17,7 +17,8 @@ conn.onmessage = function(e) {
     console.log(data);
     var msg = document.createElement('div');
     if ("getUsername" == data.action) {
-        document.getElementById('name').value = data.body;
+        document.getElementById('name').value = data.sender;
+        return;
     } else if ("to" == data.action) {
         msg.innerText = " ( To " + data.recipient + " ) " + data.sender + ': ' + data.body;
         msg.className = 'message to-command';
@@ -47,32 +48,13 @@ messageForm.addEventListener('submit', function(e) {
 
     if (input.startsWith('/chname ')) {
         currentName = input.split(' ')[1];
-        var data = {
-            sender: currentName,
-            body: document.getElementById('message').value
-        }
-        conn.send(JSON.stringify(data));
-        document.getElementById('message').value = '';
-    } else if (input.startsWith('/to ')) {
-        var parts = input.split(' ');
-        var recipient = parts[1];
-        var message = parts.slice(2).join(' ');
-
-        var data = {
-            sender: currentName,
-            body: message,
-            recipient: recipient
-        };
-        conn.send(JSON.stringify(data));
-        document.getElementById('message').value = '';
-    } else {
-        var data = {
-            sender: currentName,
-            body: input
-        };
-        conn.send(JSON.stringify(data));
-        document.getElementById('message').value = '';
     }
+    var data = {
+        sender: currentName,
+        body: input
+    };
+    conn.send(JSON.stringify(data));
+    document.getElementById('message').value = '';
 });
 
 getUsername();
