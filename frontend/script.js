@@ -3,8 +3,6 @@ var conn = new WebSocket('ws://' + backend_url + '/ws');
 var chatbox = document.getElementById('chatbox');
 var messageForm = document.getElementById('messageForm');
 
-getUsername();
-
 function getUsername() {
     fetch('http://' + backend_url + '/api/getUsername')
         .then(response => response.json())
@@ -18,14 +16,16 @@ conn.onmessage = function(e) {
     var data = JSON.parse(e.data);
     console.log(data);
     var msg = document.createElement('div');
-    if ("to" == data.action) {
+    if ("getUsername" == data.action) {
+        document.getElementById('name').value = data.body;
+    } else if ("to" == data.action) {
         msg.innerText = " ( To " + data.recipient + " ) " + data.sender + ': ' + data.body;
         msg.className = 'message to-command';
     } else if ("chname" == data.action) {
         msg.innerText = data.body;
         msg.className = 'message chname-command';
         if ("" != data.newname) {
-            document.getElementById('name').value = currentName;
+            document.getElementById('name').value = data.newname;
         }
     } else {
         msg.innerText = data.sender + ': ' + data.body;
@@ -43,7 +43,7 @@ messageForm.addEventListener('submit', function(e) {
     if (input.startsWith('/chname ')) {
         currentName = input.split(' ')[1];
         var data = {
-            name: currentName,
+            sender: currentName,
             body: document.getElementById('message').value
         }
         conn.send(JSON.stringify(data));
@@ -54,7 +54,7 @@ messageForm.addEventListener('submit', function(e) {
         var message = parts.slice(2).join(' ');
 
         var data = {
-            name: currentName,
+            sender: currentName,
             body: message,
             recipient: recipient
         };
@@ -62,10 +62,50 @@ messageForm.addEventListener('submit', function(e) {
         document.getElementById('message').value = '';
     } else {
         var data = {
-            name: currentName,
+            sender: currentName,
             body: input
         };
         conn.send(JSON.stringify(data));
         document.getElementById('message').value = '';
     }
 });
+
+getUsername();
+waitForSocketConnection(conn, function() {
+    waitForUsername()
+});
+
+function waitForUsername() {
+    setTimeout(
+        function() {
+            if (document.getElementById('name').value != '') {
+                console.log("Username is made")
+                var data = {
+                    sender: document.getElementById('name').value,
+                    body: "/getUsername"
+                };
+                conn.send(JSON.stringify(data));
+                console.log(data);
+            } else {
+                console.log("wait for username...")
+                waitForUsername();
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+}
+
+function waitForSocketConnection(socket, callback) {
+    setTimeout(
+        function() {
+            if (socket.readyState === 1) {
+                console.log("Connection is made")
+                if (callback != null) {
+                    callback();
+                }
+            } else {
+                console.log("wait for connection...")
+                waitForSocketConnection(socket, callback);
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+}

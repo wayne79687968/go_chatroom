@@ -73,9 +73,10 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		msg.Sender = c.name
-
-		if strings.HasPrefix(msg.Content, "/chname") {
+		if strings.HasPrefix(msg.Content, "/getUsername") {
+			c.name = msg.Sender
+			msg.Action = "getUsername"
+		} else if strings.HasPrefix(msg.Content, "/chname") {
 			parts := strings.SplitN(msg.Content, " ", 2)
 			if len(parts) == 2 {
 				if c.name == parts[1] {
@@ -97,7 +98,8 @@ func (c *Client) readPump() {
 			}
 			msg.Action = "to"
 		}
-
+		
+		msg.Sender = c.name
 		message, err = json.Marshal(msg)
 		if err != nil {
 			log.Printf("Error marshaling message: %v", err)

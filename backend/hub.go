@@ -38,7 +38,7 @@ func (h *Hub) run() {
 				log.Printf("Error unmarshaling message: %v", err)
 				continue
 			}
-			if "chname" == msg.Action {
+			if "chname" == msg.Action || "getUsername" == msg.Action {
 				for client := range h.clients {
 					if client.name == msg.Sender {
 						select {
