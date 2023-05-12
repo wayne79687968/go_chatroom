@@ -1,80 +1,66 @@
 package main
 
 import (
-	"database/sql"
-	"flag"
-	"log"
-	"net/http"
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
-	"encoding/json"
+	"net/http"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"github.com/rs/cors"
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
+var ctx = context.Background()
 
-type User struct {
-	Username string `json:"username"`
-}
+func generateUsername(c *gin.Context, rdb *redis.Client) {
+	val, err := rdb.Get(ctx, "username").Result()
+	if err == redis.Nil {
+		fmt.Println("No username, generating new one")
+		rand.Seed(time.Now().UnixNano())
+		num := rand.Intn(9999) + 1
+		val = fmt.Sprintf("Anonymous#%d", num)
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", 404)
-		return
+		err := rdb.Set(ctx, "username", val, 0).Err()
+		if err != nil {
+			panic(err)
+		}
+	} else if err != nil {
+		panic(err)
 	}
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", 405)
-		return
-	}
-
-	http.ServeFile(w, r, "index.html")
-}
-
-func generateUsername(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", 405)
-		return
-	}
-
-	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(9999) + 1
-	
-	data := User{fmt.Sprintf("Anonymous#%d", num)}
-	jData, _ := json.Marshal(data)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jData)
+	c.JSON(http.StatusOK, gin.H{
+		"username": val,
+	})
 }
 
 
 func main() {
-	flag.Parse()
+	r := gin.Default()
 
-	db, err := sql.Open("mysql", "user:password@/dbname")
-	if err != nil {
-		log.Fatal("Cannot connect to database:", err)
-	}
-	defer db.Close()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
 	hub := newHub()
 	go hub.run()
 
-	http.HandleFunc("/", serveHome)
-	
-	http.HandleFunc("/api/getUsername", generateUsername)
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true // Allow all origins
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type"}
+	r.Use(cors.New(corsConfig))
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+	r.GET("/api/getUsername", func(c *gin.Context) {
+		generateUsername(c, rdb)
 	})
 
-	err = http.ListenAndServe(*addr, nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+  r.GET("/ws", func(c *gin.Context) {
+		serveWs(hub, c.Writer, c.Request)
+	})
+
+	r.Run()
 }

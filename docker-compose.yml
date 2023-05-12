@@ -17,3 +17,8 @@ services:
       - ./frontend:/usr/share/nginx/html
     ports:
       - '80:80'
+
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
