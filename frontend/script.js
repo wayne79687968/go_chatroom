@@ -1,11 +1,12 @@
-var conn = new WebSocket('localhost:8080');
+var backend_url = "localhost:8080";
+var conn = new WebSocket('ws://' + backend_url + '/ws');
 var chatbox = document.getElementById('chatbox');
 var messageForm = document.getElementById('messageForm');
 
 getUsername();
 
 function getUsername() {
-    fetch('/api/getUsername')
+    fetch(backend_url + '/api/getUsername')
         .then(response => response.json())
         .then(data => {
             console.log(data)
