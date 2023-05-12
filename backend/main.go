@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"github.com/rs/cors"
+	"github.com/gin-contrib/cors"
 )
 
 var ctx = context.Background()
