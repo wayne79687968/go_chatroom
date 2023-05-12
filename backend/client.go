@@ -1,12 +1,13 @@
 package main
 
 import (
-	"strings"
 	"encoding/json"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -30,18 +31,18 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	hub *Hub
+	hub  *Hub
 	conn *websocket.Conn
 	send chan []byte
 	name string
 }
 
 type Message struct {
-	Sender string `json:"sender"`
-	Content string `json:"body"`
+	Sender    string `json:"sender"`
+	Content   string `json:"body"`
 	Recipient string `json:"recipient"`
-	Newname string `json:"newname"`
-	Action string `json:"action"`
+	Newname   string `json:"newname"`
+	Action    string `json:"action"`
 }
 
 func (c *Client) readPump() {
@@ -61,7 +62,7 @@ func (c *Client) readPump() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					log.Printf("error: %v", err)
+				log.Printf("error: %v", err)
 			}
 			break
 		}
@@ -98,7 +99,7 @@ func (c *Client) readPump() {
 			}
 			msg.Action = "to"
 		}
-		
+
 		msg.Sender = c.name
 		message, err = json.Marshal(msg)
 		if err != nil {
