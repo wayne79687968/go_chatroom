@@ -22,15 +22,15 @@ conn.onmessage = function(e) {
     } else if ("to" == data.action) {
         msg.innerText = " ( To " + data.recipient + " ) " + data.sender + ': ' + data.body;
         msg.className = 'message to-command';
-        chatbox.appendChild(msg);
-        chatbox.scrollTop = chatbox.scrollHeight;
-        return;
     } else if ("chname" == data.action) {
         msg.innerText = data.body;
         msg.className = 'message chname-command';
         if ("" != data.newname) {
             document.getElementById('name').value = data.newname;
         }
+        chatbox.appendChild(msg);
+        chatbox.scrollTop = chatbox.scrollHeight;
+        return;
     } else {
         msg.innerText = data.sender + ': ' + data.body;
         msg.className = 'message';
