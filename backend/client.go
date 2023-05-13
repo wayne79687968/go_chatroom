@@ -109,7 +109,7 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		_, err = c.db.Exec("INSERT INTO messages (sender, message, timestamp) VALUES (?, ?, ?)", c.name, msg.Content, time.Now())
+		_, err = c.db.Exec("INSERT INTO messages (sender, content, timestamp) VALUES (?, ?, ?)", c.name, msg.Content, time.Now())
 		if err != nil {
 			log.Fatal(err)
 		}
