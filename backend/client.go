@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -35,6 +36,7 @@ type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 	name string
+	db   *sql.DB
 }
 
 type Message struct {
@@ -107,6 +109,11 @@ func (c *Client) readPump() {
 			continue
 		}
 
+		_, err = c.db.Exec("INSERT INTO messages (sender, message, timestamp) VALUES (?, ?, ?)", c.name, msg.Content, time.Now())
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		c.hub.broadcast <- message
 	}
 }
@@ -151,14 +158,14 @@ func (c *Client) writePump() {
 	}
 }
 
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), name: "anonymous"}
+	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), name: "anonymous", db: db}
 	client.hub.register <- client
 
 	go client.writePump()

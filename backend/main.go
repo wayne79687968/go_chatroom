@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var ctx = context.Background()
@@ -20,9 +23,20 @@ func generateUsername(c *gin.Context) {
 	c.JSON(200, gin.H{"username": username})
 }
 
-
 func main() {
 	r := gin.Default()
+
+	dbUser := "user"
+	dbPassword := "password"
+	dbName := "chatroom"
+	dbHost := "localhost:3306"
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbHost, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	hub := newHub()
 	go hub.run()
@@ -37,8 +51,8 @@ func main() {
 		generateUsername(c)
 	})
 
-  	r.GET("/ws", func(c *gin.Context) {
-		serveWs(hub, c.Writer, c.Request)
+	r.GET("/ws", func(c *gin.Context) {
+		serveWs(hub, c.Writer, c.Request, db)
 	})
 
 	r.Run()

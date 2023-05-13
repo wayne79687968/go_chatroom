@@ -8,6 +8,7 @@ RUN go mod init app
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/gin-contrib/cors
 RUN go get github.com/gorilla/websocket
+RUN go get github.com/go-sql-driver/mysql
 RUN go build
 EXPOSE 8080
 
